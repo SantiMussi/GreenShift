@@ -53,3 +53,17 @@ export function regionLoad(snap: Snapshot, regionId: string, t: number, plan: St
 export function jobById(snap: Snapshot) {
   return new Map(snap.jobs.map((j) => [j.id, j]));
 }
+
+const TRANSFER_KWH_PER_GB = 0.02; // igual que el backend (domain.py)
+
+/** CO₂ (kg) de una lista de tramos de un trabajo, con el mismo modelo que el backend: energía × PUE × intensidad + transferencia. */
+export function placementsKg(snap: Snapshot, ps: Placement[]) {
+  let g = 0;
+  for (const p of ps) {
+    const pue = snap.regions.find((r) => r.id === p.region)?.pue ?? 1;
+    const s = snap.series[p.region].intensity;
+    for (let i = p.start; i < Math.min(p.end, s.length); i++) g += p.power_kw * pue * 0.5 * s[i];
+    if (p.region !== p.home) g += p.data_gb * TRANSFER_KWH_PER_GB * snap.series[p.home].intensity[Math.min(p.start, s.length - 1)];
+  }
+  return g / 1000;
+}

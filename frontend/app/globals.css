@@ -252,3 +252,9 @@ body::after {
     animation: none;
   }
 }
+
+/* Filas de la línea de tiempo: resaltado al pasar el mouse. */
+.gantt-hit:not([data-sel]):hover {
+  fill: var(--color-fg);
+  fill-opacity: 0.05;
+}
