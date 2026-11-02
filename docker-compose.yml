@@ -1,0 +1,17 @@
+# Alternativa a `npm run dev`: docker compose up --build  →  http://localhost:3000
+# (La primera construcción necesita internet para bajar imágenes y paquetes;
+#  después todo corre offline.)
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      GREENSHIFT_DATA_SOURCE: snapshot
+  web:
+    build:
+      context: ./frontend
+      args:
+        # El navegador habla directo con la API, por eso es localhost y no "api".
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [api]

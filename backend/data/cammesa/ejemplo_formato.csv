@@ -1,0 +1,11 @@
+hora,region,tecnologia,mwh
+0,amba,ciclo_combinado,820
+0,amba,turbina_gas,140
+0,amba,nuclear,300
+0,amba,eolica,40
+0,nqn,hidraulica,900
+0,nqn,eolica,260
+0,nqn,ciclo_combinado,180
+0,cba,ciclo_combinado,420
+0,cba,hidraulica,120
+0,cba,solar,0
