@@ -106,6 +106,7 @@ goto menu
 echo.
 echo   %G%Apagando GreenShift...%R%
 call :ps detener
+call :ps restaurar
 echo   %L1%✔%R% %W%Listo. ¡Mucha suerte en la exposición!%R%
 echo.
 ping -n 4 127.0.0.1 >nul

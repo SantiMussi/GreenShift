@@ -42,6 +42,20 @@ function Activar-Colores {
   } catch { }
 }
 
+# Un clic dentro de la ventana activa el "modo selección" de la consola, que pausa el programa hasta
+# apretar Esc o clic derecho (la animación parece congelada). Se apaga mientras corre el launcher.
+function Selección([bool]$permitir) {
+  try {
+    Activar-Colores
+    $hi = [GS.K]::GetStdHandle(-10)
+    $mi = 0
+    if ([GS.K]::GetConsoleMode($hi, [ref]$mi)) {
+      if ($permitir) { $nuevo = $mi -bor 0x80 -bor 0x40 } else { $nuevo = ($mi -bor 0x80) -band (-bnot 0x40) }
+      [void][GS.K]::SetConsoleMode($hi, $nuevo)
+    }
+  } catch { }
+}
+
 function Linea([bool]$ok, [string]$texto, [string]$detalle) {
   if ($ok) { $marca = "${lima}✔${rst}" } else { $marca = "${rojo}✖${rst}" }
   Write-Host ("   {0} {1}{2}{3}  {4}{5}{6}" -f $marca, $blanco, $texto, $rst, $gris, $detalle, $rst)
@@ -94,7 +108,9 @@ function Preguntar([string]$texto) {
 
 switch ($Modo) {
 
-  'vt' { Activar-Colores }
+  'vt' { Activar-Colores; Selección $false }
+
+  'restaurar' { Selección $true }
 
   'chequeos' {
     Activar-Colores
