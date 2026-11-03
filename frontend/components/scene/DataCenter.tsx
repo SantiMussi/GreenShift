@@ -196,8 +196,6 @@ function EmissionColumn({ regionId, top, count, reduced }: { regionId: string; t
   const target = useMemo(() => new THREE.Color(), []);
   const light = useScenePalette().light;
   const simClock = useRef(0);
-  const exag = useRef(0);
-  const rojo = useMemo(() => new THREE.Color("#ff4048"), []);
 
   useFrame(({ gl }, delta) => {
     const { snap, mapPlan } = useStore.getState();
@@ -209,20 +207,17 @@ function EmissionColumn({ regionId, top, count, reduced }: { regionId: string; t
     u0.uBoost.value = pal.particleBoost;
     const { intensity, totalKgH } = regionEmissionRate(snap, regionId, t, mapPlan);
     const down = snap.series[regionId].capacity_kw[Math.floor(t * 2)] <= 0;
-    // "Sin GreenShift": columnas más densas, altas y rojas, con transición suave.
-    exag.current += ((mapPlan === "inmediato" ? 1 : 0) - exag.current) * Math.min(1, delta * 2.5);
-    const x = exag.current;
-    const density = down ? 0 : Math.min(1, Math.max(0.05, (totalKgH / 650) * (1 + 0.6 * x)));
+    // Sin realce artificial: densidad, altura y color salen del plan que dibuja el mapa (verde o "de inmediato").
+    const density = down ? 0 : Math.min(1, Math.max(0.05, totalKgH / 650));
     const u = mat.current.uniforms;
     simClock.current += delta * (reduced ? 0.15 : 1);
     u.uTime.value = simClock.current;
     u.uDensity.value += (density - u.uDensity.value) * Math.min(1, delta * 2);
-    u.uHeight.value += ((0.6 + density * 2.6) * (1 + 0.55 * x) - u.uHeight.value) * Math.min(1, delta * 2);
-    u.uSize.value += ((1.1 + (intensity / 450) * 2.6) * (1 + 0.4 * x) - u.uSize.value) * Math.min(1, delta * 2);
+    u.uHeight.value += (0.6 + density * 2.6 - u.uHeight.value) * Math.min(1, delta * 2);
+    u.uSize.value += (1.1 + (intensity / 450) * 2.6 - u.uSize.value) * Math.min(1, delta * 2);
     u.uPixelRatio.value = gl.getPixelRatio();
     const [r, g, b] = intensityRGB(intensity);
     target.setRGB((r / 255) * pal.tintMul, (g / 255) * pal.tintMul, (b / 255) * pal.tintMul, THREE.SRGBColorSpace);
-    target.lerp(rojo, 0.45 * x);
     (u.uColor.value as THREE.Color).lerp(target, Math.min(1, delta * 3));
   });
 

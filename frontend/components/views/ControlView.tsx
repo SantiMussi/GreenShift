@@ -16,6 +16,8 @@ import { fmt, fmtKg } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
+const PEAK_HOUR = 19.5; // pico nocturno del AMBA (lunes 19:30)
+
 const Scene = dynamic(() => import("@/components/scene/Scene"), { ssr: false });
 
 export function ControlView({ active }: { active: boolean }) {
@@ -53,6 +55,7 @@ export function ControlView({ active }: { active: boolean }) {
 function MapPlanToggle() {
   const mapPlan = useStore((s) => s.mapPlan);
   const setMapPlan = useStore((s) => s.setMapPlan);
+  const control = useStore((s) => s.control);
   return (
     <div className="flex flex-col items-center gap-1.5 lg:pt-1">
       <div className="pointer-events-auto flex items-center gap-2">
@@ -74,6 +77,15 @@ function MapPlanToggle() {
             </Button>
           ))}
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-[30px] px-3"
+          onClick={() => void control({ t: PEAK_HOUR })}
+          title="Salta el reloj al pico de la tarde-noche del lunes (19:30), donde más se nota la diferencia"
+        >
+          Ir al pico · 19:30
+        </Button>
       </div>
       <AnimatePresence>{mapPlan === "inmediato" && <WarnBadge key="warn" />}</AnimatePresence>
     </div>
